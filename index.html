@@ -31,8 +31,9 @@
   .tab-panel { display: none; overflow-x: auto; -webkit-overflow-scrolling: touch; }
   .tab-panel.active { display: block; }
   .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; max-width: 1200px; margin: 0 auto; }
-  .card { background: #fff; border-radius: 14px; padding: 1rem 1rem 0.5rem; box-shadow: 0 1px 8px rgba(0,0,0,0.07); }
+  .card { background: #fff; border-radius: 14px; padding: 1rem 0.5rem 0.75rem; box-shadow: 0 1px 8px rgba(0,0,0,0.07); overflow: hidden; min-width: 0; }
   .card-name { font-size: 13px; font-weight: 600; color: #1a6fcc; text-align: center; margin-bottom: 6px; }
+  .chart-wrap { position: relative; width: 100%; padding: 0 8px; }
   .radar-note { text-align: center; font-size: 11px; color: #bbb; margin-top: 1.5rem; }
   .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; max-width: 1200px; margin: 0 auto 1.5rem; }
   .rec-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.07); padding: 1rem; border-left: 4px solid #ccc; }
@@ -45,8 +46,8 @@
   .cat-lose { background: #fcebeb; color: #791f1f; }
   .rec-tip { font-size: 12px; color: #666; line-height: 1.5; margin-top: 6px; }
   .matchup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; max-width: 1200px; margin: 0 auto 1.5rem; }
-  .matchup-card { background: #fff; border-radius: 14px; padding: 1rem 1rem 0.5rem; box-shadow: 0 1px 8px rgba(0,0,0,0.07); }
-  .matchup-legend { display: flex; justify-content: center; gap: 16px; margin-bottom: 8px; font-size: 12px; color: #555; }
+  .matchup-card { background: #fff; border-radius: 14px; padding: 1rem 0.5rem 0.75rem; box-shadow: 0 1px 8px rgba(0,0,0,0.07); overflow: hidden; min-width: 0; }
+  .matchup-legend { display: flex; justify-content: center; gap: 8px; margin-bottom: 8px; font-size: 11px; color: #555; flex-wrap: wrap; text-align: center; }
   .leg-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: middle; }
 </style>
 </head>
@@ -160,15 +161,40 @@
 
 <div class="section-header" style="margin-top:1.5rem"><h2>Week 4 matchup results</h2></div>
 
-<div style="max-width:1200px;margin:0 auto 1.25rem;">
-  <table style="width:100%;background:#fff;border-radius:14px;box-shadow:0 1px 8px rgba(0,0,0,0.07);border-collapse:collapse;overflow:hidden;font-size:13px;">
-    <thead><tr style="background:#f7f7f5;"><th style="padding:9px 14px;text-align:left;color:#555;font-weight:600;border-bottom:2px solid #eee;">Home</th><th style="padding:9px 14px;text-align:center;color:#555;font-weight:600;border-bottom:2px solid #eee;">Score</th><th style="padding:9px 14px;text-align:right;color:#555;font-weight:600;border-bottom:2px solid #eee;">Away</th></tr></thead>
+<div style="max-width:1200px;margin:0 auto 1.25rem;background:#fff;border-radius:14px;box-shadow:0 1px 8px rgba(0,0,0,0.07);overflow:hidden;">
+  <table style="width:100%;table-layout:fixed;border-collapse:collapse;font-size:13px;">
+    <colgroup><col style="width:40%"><col style="width:20%"><col style="width:40%"></colgroup>
+    <thead><tr style="background:#f7f7f5;">
+      <th style="padding:9px 12px;text-align:left;color:#555;font-weight:600;border-bottom:2px solid #eee;">Home</th>
+      <th style="padding:9px 4px;text-align:center;color:#555;font-weight:600;border-bottom:2px solid #eee;">Score</th>
+      <th style="padding:9px 12px;text-align:right;color:#555;font-weight:600;border-bottom:2px solid #eee;">Away</th>
+    </tr></thead>
     <tbody>
-      <tr><td style="padding:9px 14px;border-bottom:1px solid #f0f0f0;color:#1a6fcc;font-weight:600;">Brooklyn Dogbabies</td><td style="padding:9px 14px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;">6 – 4</td><td style="padding:9px 14px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;">Draft Dodgers</td></tr>
-      <tr><td style="padding:9px 14px;border-bottom:1px solid #f0f0f0;color:#333;">Top Tier Kyo</td><td style="padding:9px 14px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;">5 – 5</td><td style="padding:9px 14px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;">George's Walkers</td></tr>
-      <tr><td style="padding:9px 14px;border-bottom:1px solid #f0f0f0;color:#1a6fcc;font-weight:600;">Yorkshire Terrors</td><td style="padding:9px 14px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;">10 – 0</td><td style="padding:9px 14px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;">[Dummy Team]</td></tr>
-      <tr><td style="padding:9px 14px;border-bottom:1px solid #f0f0f0;color:#333;">Raphi's Loaded Bases</td><td style="padding:9px 14px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;">4 – 4</td><td style="padding:9px 14px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;">Switch Hitter Brandon</td></tr>
-      <tr><td style="padding:9px 14px;color:#1a6fcc;font-weight:600;">Bad Rabbits</td><td style="padding:9px 14px;text-align:center;font-weight:700;">9 – 1</td><td style="padding:9px 14px;text-align:right;color:#333;">Motion to Strike</td></tr>
+      <tr>
+        <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;color:#1a6fcc;font-weight:600;word-break:break-word;">Brooklyn Dogbabies</td>
+        <td style="padding:9px 4px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;white-space:nowrap;">6 – 4</td>
+        <td style="padding:9px 12px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;word-break:break-word;">Draft Dodgers</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;color:#333;word-break:break-word;">Top Tier Kyo</td>
+        <td style="padding:9px 4px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;white-space:nowrap;">5 – 5</td>
+        <td style="padding:9px 12px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;word-break:break-word;">George's Walkers</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;color:#1a6fcc;font-weight:600;word-break:break-word;">Yorkshire Terrors</td>
+        <td style="padding:9px 4px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;white-space:nowrap;">10 – 0</td>
+        <td style="padding:9px 12px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;word-break:break-word;">[Dummy Team]</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 12px;border-bottom:1px solid #f0f0f0;color:#333;word-break:break-word;">Raphi's Loaded Bases</td>
+        <td style="padding:9px 4px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;white-space:nowrap;">4 – 4</td>
+        <td style="padding:9px 12px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;word-break:break-word;">Switch Hitter Brandon</td>
+      </tr>
+      <tr>
+        <td style="padding:9px 12px;color:#1a6fcc;font-weight:600;word-break:break-word;">Bad Rabbits</td>
+        <td style="padding:9px 4px;text-align:center;font-weight:700;white-space:nowrap;">9 – 1</td>
+        <td style="padding:9px 12px;text-align:right;color:#333;word-break:break-word;">Motion to Strike</td>
+      </tr>
     </tbody>
   </table>
 </div>
@@ -423,14 +449,14 @@ var grid = document.getElementById('grid');
 realTeams.forEach(function(team, i) {
   var scores = allCats.map(function(c) { return parseFloat(scoreVal(team[c], c).toFixed(2)); });
   var card = document.createElement('div'); card.className = 'card';
-  card.innerHTML = '<div class="card-name">' + team.name + '</div><canvas id="c' + i + '"></canvas>';
+  card.innerHTML = '<div class="card-name">' + team.name + '</div><div class="chart-wrap"><canvas id="c' + i + '"></canvas></div>';
   grid.appendChild(card);
   var rgb = hexToRgb(teamColors[i % teamColors.length]);
   new Chart(document.getElementById('c' + i), {
     type: 'radar',
     data: { labels: allCats, datasets: [{ data: scores, backgroundColor: 'rgba('+rgb.r+','+rgb.g+','+rgb.b+',0.15)', borderColor: teamColors[i % teamColors.length], borderWidth: 2, pointBackgroundColor: teamColors[i % teamColors.length], pointRadius: 3 }] },
-    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } },
-      scales: { r: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 9 }, backdropColor: 'transparent', color: '#bbb' }, grid: { color: 'rgba(0,0,0,0.07)' }, angleLines: { color: 'rgba(0,0,0,0.07)' }, pointLabels: { color: '#444', font: { size: 11, weight: '500' } } } } }
+    options: { responsive: true, maintainAspectRatio: true, layout: { padding: { top: 10, bottom: 10, left: 14, right: 14 } }, plugins: { legend: { display: false } },
+      scales: { r: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 8 }, backdropColor: 'transparent', color: '#bbb' }, grid: { color: 'rgba(0,0,0,0.07)' }, angleLines: { color: 'rgba(0,0,0,0.07)' }, pointLabels: { color: '#444', font: { size: 10, weight: '500' } } } } }
   });
 });
 
@@ -489,7 +515,7 @@ matchups.filter(function(m) {
       '<span><span class="leg-dot" style="background:' + matchupColorA + '"></span>' + m.a + '</span>' +
       '<span><span class="leg-dot" style="background:' + matchupColorB + '"></span>' + m.b + '</span>' +
     '</div>' +
-    '<canvas id="mc' + idx + '"></canvas>';
+    '<div class="chart-wrap"><canvas id="mc' + idx + '"></canvas></div>';
   matchupGrid.appendChild(card);
 
   new Chart(document.getElementById('mc' + idx), {
@@ -503,8 +529,9 @@ matchups.filter(function(m) {
     },
     options: {
       responsive: true, maintainAspectRatio: true,
+      layout: { padding: { top: 10, bottom: 10, left: 14, right: 14 } },
       plugins: { legend: { display: false } },
-      scales: { r: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 9 }, backdropColor: 'transparent', color: '#bbb' }, grid: { color: 'rgba(0,0,0,0.07)' }, angleLines: { color: 'rgba(0,0,0,0.07)' }, pointLabels: { color: '#444', font: { size: 11, weight: '500' } } } }
+      scales: { r: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 8 }, backdropColor: 'transparent', color: '#bbb' }, grid: { color: 'rgba(0,0,0,0.07)' }, angleLines: { color: 'rgba(0,0,0,0.07)' }, pointLabels: { color: '#444', font: { size: 10, weight: '500' } } } }
     }
   });
 });
