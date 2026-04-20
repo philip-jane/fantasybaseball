@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fantasy Baseball League</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f0eb; padding: 1rem; }
+  h1 { text-align: center; font-size: 22px; font-weight: 600; color: #222; margin: 1rem 0 0.25rem; }
+  .subtitle { text-align: center; font-size: 12px; color: #999; margin-bottom: 1.5rem; }
+  h2 { font-size: 15px; font-weight: 600; color: #333; margin: 0 0 0.75rem; }
+  .section-header { max-width: 1200px; margin: 0 auto 0.75rem; padding: 0 0.25rem; }
+  .table-wrap { background: #fff; border-radius: 14px; box-shadow: 0 1px 8px rgba(0,0,0,0.07); padding: 1.25rem; max-width: 1200px; margin: 0 auto 1.25rem; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead tr { background: #f7f7f5; }
+  th { padding: 9px 10px; text-align: left; color: #555; font-weight: 600; cursor: pointer; user-select: none; white-space: nowrap; border-bottom: 2px solid #eee; }
+  th:hover { color: #1a6fcc; }
+  th.sorted-asc::after { content: ' ↑'; color: #1a6fcc; }
+  th.sorted-desc::after { content: ' ↓'; color: #1a6fcc; }
+  td { padding: 9px 10px; border-bottom: 1px solid #f0f0f0; color: #333; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #fafafa; }
+  .team-name { color: #1a6fcc; font-weight: 500; }
+  .best { font-weight: 700; color: #1a6fcc; }
+  #standingsTable col.col-rank { width: 40px; }
+  #standingsTable col.col-stat { width: 64px; }
+  .tabs { display: flex; margin-bottom: 1rem; border-bottom: 2px solid #eee; }
+  .tab { padding: 7px 16px; font-size: 13px; font-weight: 600; color: #888; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; }
+  .tab.active { color: #1a6fcc; border-bottom-color: #1a6fcc; }
+  .tab-panel { display: none; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  .tab-panel.active { display: block; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; max-width: 1200px; margin: 0 auto; }
+  .card { background: #fff; border-radius: 14px; padding: 1rem 1rem 0.5rem; box-shadow: 0 1px 8px rgba(0,0,0,0.07); }
+  .card-name { font-size: 13px; font-weight: 600; color: #1a6fcc; text-align: center; margin-bottom: 6px; }
+  .radar-note { text-align: center; font-size: 11px; color: #bbb; margin-top: 1.5rem; }
+  .rec-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; max-width: 1200px; margin: 0 auto 1.5rem; }
+  .rec-card { background: #fff; border-radius: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.07); padding: 1rem; border-left: 4px solid #ccc; }
+  .rec-name { font-size: 13px; font-weight: 700; color: #1a6fcc; margin-bottom: 6px; }
+  .rec-row { display: flex; align-items: flex-start; gap: 6px; margin-bottom: 5px; flex-wrap: wrap; }
+  .rec-label { font-size: 11px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; padding-top: 3px; }
+  .cat-pill { font-size: 11px; font-weight: 600; padding: 2px 7px; border-radius: 5px; }
+  .cat-win  { background: #eaf3de; color: #27500a; }
+  .cat-close { background: #faeeda; color: #633806; }
+  .cat-lose { background: #fcebeb; color: #791f1f; }
+  .rec-tip { font-size: 12px; color: #666; line-height: 1.5; margin-top: 6px; }
+  .matchup-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; max-width: 1200px; margin: 0 auto 1.5rem; }
+  .matchup-card { background: #fff; border-radius: 14px; padding: 1rem 1rem 0.5rem; box-shadow: 0 1px 8px rgba(0,0,0,0.07); }
+  .matchup-legend { display: flex; justify-content: center; gap: 16px; margin-bottom: 8px; font-size: 12px; color: #555; }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; margin-right: 4px; vertical-align: middle; }
+</style>
+</head>
+<body>
+
+<h1>Fantasy Baseball League</h1>
+<p class="subtitle">Through Week 4 · Win 6 of 10 categories · Click any column to sort · ERA &amp; WHIP: lower is better</p>
+
+<div class="table-wrap">
+  <h2>Standings</h2>
+  <table id="standingsTable">
+    <colgroup><col class="col-rank"><col><col class="col-stat"><col class="col-stat"><col class="col-stat"></colgroup>
+    <thead><tr>
+      <th data-col="rank" data-type="num">#</th>
+      <th data-col="name" data-type="str">Team</th>
+      <th data-col="wlt" data-type="str">W-L-T</th>
+      <th data-col="pct" data-type="num">Pct</th>
+      <th data-col="gb" data-type="num">GB</th>
+    </tr></thead>
+    <tbody id="standings-tbody"></tbody>
+  </table>
+</div>
+
+<div class="table-wrap">
+  <h2>League Stats (Cumulative)</h2>
+  <div class="tabs">
+    <div class="tab active" data-tab="hitting">Hitting</div>
+    <div class="tab" data-tab="pitching">Pitching</div>
+  </div>
+  <div class="tab-panel active" id="panel-hitting">
+    <table id="hittingTable">
+      <thead><tr>
+        <th data-col="name" data-type="str">Team</th>
+        <th data-col="R" data-type="num">R</th>
+        <th data-col="HR" data-type="num">HR</th>
+        <th data-col="RBI" data-type="num">RBI</th>
+        <th data-col="SB" data-type="num">SB</th>
+        <th data-col="AVG" data-type="num">AVG</th>
+      </tr></thead>
+      <tbody id="hitting-tbody"></tbody>
+    </table>
+  </div>
+  <div class="tab-panel" id="panel-pitching">
+    <table id="pitchingTable">
+      <thead><tr>
+        <th data-col="name" data-type="str">Team</th>
+        <th data-col="W" data-type="num">W</th>
+        <th data-col="SV" data-type="num">SV</th>
+        <th data-col="K" data-type="num">K</th>
+        <th data-col="ERA" data-type="num">ERA</th>
+        <th data-col="WHIP" data-type="num">WHIP</th>
+      </tr></thead>
+      <tbody id="pitching-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="table-wrap">
+  <h2>Last Week (Week 4)</h2>
+  <div class="tabs">
+    <div class="tab active" data-tab="lw-hitting">Hitting</div>
+    <div class="tab" data-tab="lw-pitching">Pitching</div>
+  </div>
+  <div class="tab-panel active" id="panel-lw-hitting">
+    <table id="lwHittingTable">
+      <thead><tr>
+        <th data-col="name" data-type="str">Team</th>
+        <th data-col="R" data-type="num">R</th>
+        <th data-col="HR" data-type="num">HR</th>
+        <th data-col="RBI" data-type="num">RBI</th>
+        <th data-col="SB" data-type="num">SB</th>
+        <th data-col="AVG" data-type="num">AVG</th>
+      </tr></thead>
+      <tbody id="lw-hitting-tbody"></tbody>
+    </table>
+  </div>
+  <div class="tab-panel" id="panel-lw-pitching">
+    <table id="lwPitchingTable">
+      <thead><tr>
+        <th data-col="name" data-type="str">Team</th>
+        <th data-col="W" data-type="num">W</th>
+        <th data-col="SV" data-type="num">SV</th>
+        <th data-col="K" data-type="num">K</th>
+        <th data-col="ERA" data-type="num">ERA</th>
+        <th data-col="WHIP" data-type="num">WHIP</th>
+      </tr></thead>
+      <tbody id="lw-pitching-tbody"></tbody>
+    </table>
+  </div>
+</div>
+
+<div style="max-width:1200px;margin:0 auto 1.25rem;background:linear-gradient(135deg,#1a6fcc 0%,#0e9db5 100%);border-radius:14px;box-shadow:0 1px 8px rgba(0,0,0,0.10);padding:1.25rem 1.5rem;color:#fff;display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;">
+  <div style="font-size:2.8rem;line-height:1;">🏆</div>
+  <div style="flex:1;min-width:180px;">
+    <div style="font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;opacity:0.75;margin-bottom:4px;">Week 4 MVP</div>
+    <div style="font-size:22px;font-weight:800;margin-bottom:2px;">Bad Rabbits</div>
+    <div style="font-size:12px;opacity:0.75;margin-bottom:10px;">Ernesto</div>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;">
+      <span style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;">69 K 🔥</span>
+      <span style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;">48 R</span>
+      <span style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;">17 HR</span>
+      <span style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;">6 SV</span>
+      <span style="background:rgba(255,255,255,0.2);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;">5 W</span>
+    </div>
+  </div>
+  <p style="font-size:13px;opacity:0.9;line-height:1.6;max-width:380px;margin:0;">69 Ks, 17 HR, 48 runs, 5 wins, and 6 saves — Bad Rabbits won 9 of 10 categories against Motion to Strike and it wasn't even close. Ernesto's team is now 3-1-0 and the most complete roster in the league. The only thing scarier than facing them is trying to figure out what category they don't win.</p>
+</div>
+
+<div class="grid" id="grid"></div>
+<p class="radar-note">Scores normalized across all teams (1–10) · ERA &amp; WHIP inverted</p>
+
+<div class="section-header" style="margin-top:1.5rem"><h2>Week 4 matchup results</h2></div>
+
+<div style="max-width:1200px;margin:0 auto 1.25rem;">
+  <table style="width:100%;background:#fff;border-radius:14px;box-shadow:0 1px 8px rgba(0,0,0,0.07);border-collapse:collapse;overflow:hidden;font-size:13px;">
+    <thead><tr style="background:#f7f7f5;"><th style="padding:9px 14px;text-align:left;color:#555;font-weight:600;border-bottom:2px solid #eee;">Home</th><th style="padding:9px 14px;text-align:center;color:#555;font-weight:600;border-bottom:2px solid #eee;">Score</th><th style="padding:9px 14px;text-align:right;color:#555;font-weight:600;border-bottom:2px solid #eee;">Away</th></tr></thead>
+    <tbody>
+      <tr><td style="padding:9px 14px;border-bottom:1px solid #f0f0f0;color:#1a6fcc;font-weight:600;">Brooklyn Dogbabies</td><td style="padding:9px 14px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;">6 – 4</td><td style="padding:9px 14px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;">Draft Dodgers</td></tr>
+      <tr><td style="padding:9px 14px;border-bottom:1px solid #f0f0f0;color:#333;">Top Tier Kyo</td><td style="padding:9px 14px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;">5 – 5</td><td style="padding:9px 14px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;">George's Walkers</td></tr>
+      <tr><td style="padding:9px 14px;border-bottom:1px solid #f0f0f0;color:#1a6fcc;font-weight:600;">Yorkshire Terrors</td><td style="padding:9px 14px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;">10 – 0</td><td style="padding:9px 14px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;">[Dummy Team]</td></tr>
+      <tr><td style="padding:9px 14px;border-bottom:1px solid #f0f0f0;color:#333;">Raphi's Loaded Bases</td><td style="padding:9px 14px;text-align:center;border-bottom:1px solid #f0f0f0;font-weight:700;">4 – 4</td><td style="padding:9px 14px;text-align:right;border-bottom:1px solid #f0f0f0;color:#333;">Switch Hitter Brandon</td></tr>
+      <tr><td style="padding:9px 14px;color:#1a6fcc;font-weight:600;">Bad Rabbits</td><td style="padding:9px 14px;text-align:center;font-weight:700;">9 – 1</td><td style="padding:9px 14px;text-align:right;color:#333;">Motion to Strike</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="section-header" style="margin-top:1.5rem"><h2>Week 5 matchup radars</h2></div>
+<div class="matchup-grid" id="matchup-grid"></div>
+
+<div class="section-header" style="margin-top:1.5rem"><h2>Team strategy</h2></div>
+<div class="rec-grid" id="rec-grid"></div>
+
+<div class="section-header" style="margin-top:0.5rem"><h2>Roast of the week</h2></div>
+<div class="rec-grid" id="roast-grid"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+// Cumulative totals through Week 4
+// Week 4 stats added to previous Week 3 totals
+var teams = [
+  // Brooklyn Dogbabies: prev + W4 (47R,10HR,37RBI,5SB,.312avg,6W,5SV,59K,2.93ERA,1.17WHIP / 58.1IP)
+  { name:"Brooklyn Dogbabies",    R:136, HR:38, RBI:121, SB:16, AVG:0.312, W:17, SV:15, K:177, ERA:2.97, WHIP:1.13 },
+  // Top Tier Kyo: prev + W4 (26R,8HR,31RBI,8SB,.247,2W,1SV,40K,6.85ERA,1.43WHIP / 43.1IP)
+  { name:"Top Tier Kyo",          R:94,  HR:16, RBI:96,  SB:28, AVG:0.247, W:12, SV:3,  K:156, ERA:4.01, WHIP:1.09 },
+  // Yorkshire Terrors: prev + W4 (40R,17HR,48RBI,6SB,.243,5W,2SV,51K,5.04ERA,1.28WHIP / 55.1IP)
+  { name:"Yorkshire Terrors",     R:133, HR:39, RBI:117, SB:28, AVG:0.243, W:9,  SV:11, K:205, ERA:5.21, WHIP:1.56 },
+  // Draft Dodgers: prev + W4 (48R,15HR,30RBI,2SB,.253,1W,4SV,63K,4.08ERA,1.08WHIP / 64.0IP)
+  { name:"Draft Dodgers",         R:124, HR:37, RBI:117, SB:10, AVG:0.253, W:9,  SV:6,  K:181, ERA:3.54, WHIP:1.09 },
+  // George's Walkers: prev + W4 (24R,9HR,21RBI,2SB,.240,3W,4SV,35K,2.62ERA,0.90WHIP / 34.1IP)
+  { name:"George's Walkers",      R:98,  HR:27, RBI:74,  SB:12, AVG:0.238, W:11, SV:12, K:154, ERA:3.79, WHIP:1.22 },
+  // Raphi's Loaded Bases: prev + W4 (33R,6HR,24RBI,8SB,.248,4W,0SV,55K,2.06ERA,1.01WHIP / 43.2IP)
+  { name:"Raphi's Loaded Bases",  R:111, HR:26, RBI:94,  SB:24, AVG:0.256, W:11, SV:5,  K:163, ERA:2.62, WHIP:1.06 },
+  // Bad Rabbits: prev + W4 (48R,17HR,49RBI,8SB,.267,5W,6SV,69K,3.12ERA,1.12WHIP / 75.0IP)
+  { name:"Bad Rabbits",           R:125, HR:35, RBI:119, SB:20, AVG:0.260, W:17, SV:15, K:249, ERA:2.95, WHIP:1.05 },
+  // Motion to Strike: prev + W4 (40R,10HR,31RBI,4SB,.268,1W,3SV,38K,3.49ERA,1.40WHIP / 38.2IP)
+  { name:"Motion to Strike",      R:120, HR:28, RBI:102, SB:19, AVG:0.261, W:7,  SV:9,  K:171, ERA:3.63, WHIP:1.24 },
+  // Switch Hitter Brandon: prev + W4 (37R,6HR,33RBI,7SB,.250,4W,2SV,53K,3.57ERA,1.38WHIP / 53.0IP)
+  { name:"Switch Hitter Brandon", R:122, HR:25, RBI:111, SB:23, AVG:0.255, W:14, SV:4,  K:193, ERA:3.77, WHIP:1.23 },
+  { name:"[Dummy Team]",          R:25,  HR:3,  RBI:20,  SB:1,  AVG:0.190, W:0,  SV:1,  K:12,  ERA:6.50, WHIP:2.10 }
+];
+
+// Week 4 only stats
+var lastWeekTeams = [
+  { name:"Brooklyn Dogbabies",    R:47, HR:10, RBI:37, SB:5,  AVG:0.312, W:6, SV:5, K:59,  ERA:2.93, WHIP:1.17 },
+  { name:"Top Tier Kyo",          R:26, HR:8,  RBI:31, SB:8,  AVG:0.247, W:2, SV:1, K:40,  ERA:6.85, WHIP:1.43 },
+  { name:"Yorkshire Terrors",     R:40, HR:17, RBI:48, SB:6,  AVG:0.243, W:5, SV:2, K:51,  ERA:5.04, WHIP:1.28 },
+  { name:"Draft Dodgers",         R:48, HR:15, RBI:30, SB:2,  AVG:0.253, W:1, SV:4, K:63,  ERA:4.08, WHIP:1.08 },
+  { name:"George's Walkers",      R:24, HR:9,  RBI:21, SB:2,  AVG:0.240, W:3, SV:4, K:35,  ERA:2.62, WHIP:0.90 },
+  { name:"Raphi's Loaded Bases",  R:33, HR:6,  RBI:24, SB:8,  AVG:0.248, W:4, SV:0, K:55,  ERA:2.06, WHIP:1.01 },
+  { name:"Bad Rabbits",           R:48, HR:17, RBI:49, SB:8,  AVG:0.267, W:5, SV:6, K:69,  ERA:3.12, WHIP:1.12 },
+  { name:"Motion to Strike",      R:40, HR:10, RBI:31, SB:4,  AVG:0.268, W:1, SV:3, K:38,  ERA:3.49, WHIP:1.40 },
+  { name:"Switch Hitter Brandon", R:37, HR:6,  RBI:33, SB:7,  AVG:0.250, W:4, SV:2, K:53,  ERA:3.57, WHIP:1.38 }
+];
+
+var standings = [
+  { rank:1, name:"Brooklyn Dogbabies",    wlt:"4-0-0", pct:1.000,  gb:"-" },
+  { rank:2, name:"Bad Rabbits",           wlt:"3-1-0", pct:0.750,  gb:1   },
+  { rank:3, name:"Motion to Strike",      wlt:"3-1-0", pct:0.750,  gb:1   },
+  { rank:4, name:"Raphi's Loaded Bases",  wlt:"2-1-1", pct:0.625,  gb:1.5 },
+  { rank:5, name:"Switch Hitter Brandon", wlt:"2-1-1", pct:0.625,  gb:1.5 },
+  { rank:6, name:"Yorkshire Terrors",     wlt:"2-2-0", pct:0.500,  gb:2   },
+  { rank:7, name:"George's Walkers",      wlt:"1-2-1", pct:0.375,  gb:2.5 },
+  { rank:8, name:"Draft Dodgers",         wlt:"1-3-0", pct:0.250,  gb:3   },
+  { rank:9, name:"Top Tier Kyo",          wlt:"0-3-1", pct:0.125,  gb:3.5 }
+];
+
+var matchups = [
+  { a:"Brooklyn Dogbabies",   b:"Yorkshire Terrors"      },
+  { a:"Top Tier Kyo",         b:"Draft Dodgers"          },
+  { a:"George's Walkers",     b:"Raphi's Loaded Bases"   },
+  { a:"Bad Rabbits",          b:"Switch Hitter Brandon"  }
+];
+
+var roasts = [
+  { name:"Brooklyn Dogbabies",    text:"4-0-0. Undefeated. Philip has now led the league in W, SV, and rate stats for four straight weeks while maintaining a .312 AVG this week — which is frankly offensive. The dog on the logo is not confused, it is winning. The only thing missing is a closer who doesn't already exist on this roster. Dominant. Infuriating. Correct." },
+  { name:"Top Tier Kyo",          text:"0-3-1 and the pretzel has officially gone stale. Kyo's pitching numbers are genuinely elite — 1.09 WHIP, 156 K — but somehow this team cannot string together a winning week. This week's ERA was 6.85. A pretzel-shaped crater appeared in the standings where the wins used to be. Still here. Still fighting. Still losing." },
+  { name:"Yorkshire Terrors",     text:"205 strikeouts. The most in the league. By a distance. Peter is running a strikeout factory disguised as a fantasy team, and this week his offense showed up too: 17 HR, 48 RBI. The problem is ERA. Always ERA. 5.21 on the season is a slow-motion disaster. One good bullpen upgrade and Yorkshire becomes the scariest team in the league." },
+  { name:"Draft Dodgers",         text:"1-3-0 and still refusing to get a closer. Wooyoung's offense put up 48 runs and 15 HR this week. Great. Excellent. The pitching ERA is 4.08 this week on top of a season ERA of 3.54. The saves column currently reads 6. That's a season total. Wooyoung, the saves are right there. They're right there. Please." },
+  { name:"George's Walkers",      text:"12 saves and 11 wins on the season — that's quietly a top-three bullpen by counting stats. And a 2.62 ERA this week from a hot dog avatar. The problem is the offense is still just... okay. .238 AVG, 12 SB, modest power. George is building a relief pitcher museum and his hitters are the gift shop." },
+  { name:"Raphi's Loaded Bases",  text:"2-1-1 and a 2.06 ERA this week with a 1.01 WHIP on the season. The dumpster fire has been fully extinguished and replaced with a controlled burn of excellence. Raphi's Loaded Bases is quietly one of the best-constructed teams in the league and absolutely nobody is talking about it. The trash can stays. The ERA stays lower." },
+  { name:"Bad Rabbits",           text:"3-1-0 and 249 strikeouts on the season. Two. Hundred. Forty. Nine. Ernesto has assembled a pitching staff that treats opposing lineups as a personal inconvenience. Week 4: 9 out of 10 categories. The Bad Rabbits don't have a weakness. They have a preference for winning everything and the roster to back it up." },
+  { name:"Motion to Strike",      text:"3-1-0 last week, 3-1-0 now. Michael Bennett's team went from the top of the standings to a 9-1 loss in one very bad week. The ERA was 3.49, the WHIP was 1.40, and Bad Rabbits showed exactly zero mercy. The gavel hit the table and it said 'not this week.' The motion has been tabled. Come back next week." },
+  { name:"Switch Hitter Brandon", text:"23 SB and 193 strikeouts from the pitchers. Brandon has built a very specific kind of team: fast, strikeout-heavy, and quietly solid in AVG and RBI. The rainbow continues its undefeated run as a lifestyle aesthetic. The 4 SV total remains a philosophical choice rather than a strategy. Respect the identity." }
+];
+
+var allCats = ["R","HR","RBI","SB","AVG","W","SV","K","ERA","WHIP"];
+var invertCats = ["ERA","WHIP"];
+var realTeams = teams.filter(function(t) { return t.name !== "[Dummy Team]"; });
+var teamColors = ["#1a6fcc","#0e9db5","#2eaa6e","#8b5cf6","#e8a020","#e84040","#D85A30","#c0397e","#5a7a20"];
+
+var mins = {}, maxs = {};
+allCats.forEach(function(c) {
+  var vals = realTeams.map(function(t) { return t[c]; });
+  mins[c] = Math.min.apply(null, vals);
+  maxs[c] = Math.max.apply(null, vals);
+});
+
+function isInvert(c) { return invertCats.indexOf(c) >= 0; }
+
+function scoreVal(val, cat) {
+  var lo = mins[cat], hi = maxs[cat];
+  if (hi === lo) return 5;
+  var s = (val - lo) / (hi - lo) * 9 + 1;
+  return isInvert(cat) ? 10 - s + 1 : s;
+}
+
+function getScores(teamName) {
+  var t = null;
+  for (var i = 0; i < teams.length; i++) {
+    if (teams[i].name === teamName) { t = teams[i]; break; }
+  }
+  if (!t) return {};
+  var obj = {};
+  allCats.forEach(function(c) { obj[c] = scoreVal(t[c], c); });
+  return obj;
+}
+
+function hexToRgb(hex) {
+  return { r: parseInt(hex.slice(1,3),16), g: parseInt(hex.slice(3,5),16), b: parseInt(hex.slice(5,7),16) };
+}
+
+function pills(cats, cls) {
+  if (!cats.length) return '<span style="font-size:12px;color:#aaa">none</span>';
+  return cats.map(function(c) { return '<span class="cat-pill ' + cls + '">' + c + '</span>'; }).join('');
+}
+
+function makeSort(tableId, data, renderFn) {
+  var ths = document.querySelectorAll('#' + tableId + ' th');
+  for (var i = 0; i < ths.length; i++) {
+    ths[i].addEventListener('click', (function(th) {
+      return function() {
+        var col = th.getAttribute('data-col');
+        var type = th.getAttribute('data-type');
+        var cur = th.classList.contains('sorted-asc');
+        var allTh = document.querySelectorAll('#' + tableId + ' th');
+        for (var j = 0; j < allTh.length; j++) allTh[j].classList.remove('sorted-asc','sorted-desc');
+        th.classList.add(cur ? 'sorted-desc' : 'sorted-asc');
+        var asc = !cur;
+        var sorted = data.slice().sort(function(a, b) {
+          var va = a[col], vb = b[col];
+          if (type === 'str') return asc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+          var na = va === '-' ? -1 : Number(va), nb = vb === '-' ? -1 : Number(vb);
+          var lowerBetter = col === 'ERA' || col === 'WHIP';
+          var effAsc = lowerBetter ? asc : !asc;
+          return effAsc ? na - nb : nb - na;
+        });
+        renderFn(sorted);
+      };
+    })(ths[i]));
+  }
+}
+
+function renderStandings(data) {
+  var tbody = document.getElementById('standings-tbody');
+  tbody.innerHTML = '';
+  data.forEach(function(t) {
+    var pctStr = t.pct === 1 ? '1.000' : t.pct.toFixed(3).replace('0.','.');
+    var tr = document.createElement('tr');
+    tr.innerHTML = '<td>' + t.rank + '</td><td class="team-name">' + t.name + '</td><td>' + t.wlt + '</td><td>' + pctStr + '</td><td>' + t.gb + '</td>';
+    tbody.appendChild(tr);
+  });
+}
+renderStandings(standings);
+makeSort('standingsTable', standings, renderStandings);
+
+var hitCats = ["R","HR","RBI","SB","AVG"];
+var pitCats = ["W","SV","K","ERA","WHIP"];
+var best = {};
+hitCats.concat(pitCats).forEach(function(c) {
+  var vals = realTeams.map(function(t) { return t[c]; });
+  best[c] = isInvert(c) ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
+});
+
+function renderHitting(data) {
+  var tbody = document.getElementById('hitting-tbody');
+  tbody.innerHTML = '';
+  data.forEach(function(t) {
+    var tr = document.createElement('tr');
+    var cells = hitCats.map(function(c) {
+      var val = c === 'AVG' ? t[c].toFixed(3).replace('0.', '.') : t[c];
+      return '<td' + (t[c] === best[c] ? ' class="best"' : '') + '>' + val + '</td>';
+    });
+    tr.innerHTML = '<td class="team-name">' + t.name + '</td>' + cells.join('');
+    tbody.appendChild(tr);
+  });
+}
+renderHitting(teams);
+makeSort('hittingTable', teams, renderHitting);
+
+function renderPitching(data) {
+  var tbody = document.getElementById('pitching-tbody');
+  tbody.innerHTML = '';
+  data.forEach(function(t) {
+    var tr = document.createElement('tr');
+    var cells = pitCats.map(function(c) {
+      return '<td' + (t[c] === best[c] ? ' class="best"' : '') + '>' + t[c] + '</td>';
+    });
+    tr.innerHTML = '<td class="team-name">' + t.name + '</td>' + cells.join('');
+    tbody.appendChild(tr);
+  });
+}
+renderPitching(teams);
+makeSort('pitchingTable', teams, renderPitching);
+
+var lwBest = {};
+hitCats.concat(pitCats).forEach(function(c) {
+  var vals = lastWeekTeams.map(function(t) { return t[c]; });
+  lwBest[c] = isInvert(c) ? Math.min.apply(null, vals) : Math.max.apply(null, vals);
+});
+
+function renderLwHitting(data) {
+  var tbody = document.getElementById('lw-hitting-tbody');
+  tbody.innerHTML = '';
+  data.forEach(function(t) {
+    var tr = document.createElement('tr');
+    var cells = hitCats.map(function(c) {
+      var val = c === 'AVG' ? t[c].toFixed(3).replace('0.', '.') : t[c];
+      return '<td' + (t[c] === lwBest[c] ? ' class="best"' : '') + '>' + val + '</td>';
+    });
+    tr.innerHTML = '<td class="team-name">' + t.name + '</td>' + cells.join('');
+    tbody.appendChild(tr);
+  });
+}
+renderLwHitting(lastWeekTeams);
+makeSort('lwHittingTable', lastWeekTeams, renderLwHitting);
+
+function renderLwPitching(data) {
+  var tbody = document.getElementById('lw-pitching-tbody');
+  tbody.innerHTML = '';
+  data.forEach(function(t) {
+    var tr = document.createElement('tr');
+    var cells = pitCats.map(function(c) {
+      return '<td' + (t[c] === lwBest[c] ? ' class="best"' : '') + '>' + t[c] + '</td>';
+    });
+    tr.innerHTML = '<td class="team-name">' + t.name + '</td>' + cells.join('');
+    tbody.appendChild(tr);
+  });
+}
+renderLwPitching(lastWeekTeams);
+makeSort('lwPitchingTable', lastWeekTeams, renderLwPitching);
+
+document.querySelectorAll('.table-wrap').forEach(function(wrap) {
+  wrap.querySelectorAll('.tab').forEach(function(tab) {
+    tab.addEventListener('click', function() {
+      wrap.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+      wrap.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+      tab.classList.add('active');
+      wrap.querySelector('#panel-' + tab.getAttribute('data-tab')).classList.add('active');
+    });
+  });
+});
+
+var grid = document.getElementById('grid');
+realTeams.forEach(function(team, i) {
+  var scores = allCats.map(function(c) { return parseFloat(scoreVal(team[c], c).toFixed(2)); });
+  var card = document.createElement('div'); card.className = 'card';
+  card.innerHTML = '<div class="card-name">' + team.name + '</div><canvas id="c' + i + '"></canvas>';
+  grid.appendChild(card);
+  var rgb = hexToRgb(teamColors[i % teamColors.length]);
+  new Chart(document.getElementById('c' + i), {
+    type: 'radar',
+    data: { labels: allCats, datasets: [{ data: scores, backgroundColor: 'rgba('+rgb.r+','+rgb.g+','+rgb.b+',0.15)', borderColor: teamColors[i % teamColors.length], borderWidth: 2, pointBackgroundColor: teamColors[i % teamColors.length], pointRadius: 3 }] },
+    options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } },
+      scales: { r: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 9 }, backdropColor: 'transparent', color: '#bbb' }, grid: { color: 'rgba(0,0,0,0.07)' }, angleLines: { color: 'rgba(0,0,0,0.07)' }, pointLabels: { color: '#444', font: { size: 11, weight: '500' } } } } }
+  });
+});
+
+var strategies = [
+  { name:"Brooklyn Dogbabies",    tip:"4-0 and it's not a fluke — it's construction. 177 K, 15 SV, 17 W, and a .312 AVG this week. Philip's team wins because it has no exploitable hole. The only improvement would be adding SB depth (16 on the season is middle-of-pack) but that feels like complaining at a championship parade." },
+  { name:"Top Tier Kyo",          tip:"0-3-1 but the cumulative pitching stats don't lie: 1.09 WHIP and 156 K are genuinely elite. This team is being punished for a thin lineup. The 28 SB lead the league but everything else in the batting order is being carried by one stolen base merchant. One power bat changes the ceiling dramatically." },
+  { name:"Yorkshire Terrors",     tip:"205 K leads the league by a wide margin and 28 SB ties for the top. Peter has two locked-in categories every week. The ERA of 5.21 keeps giving away the W category though — it's costing wins. A reliever-only pitching strategy (stream saves, protect ERA) could turn this from a 2-2 team into a 3-1 one fast." },
+  { name:"Draft Dodgers",         tip:"Still just 6 SV on the entire season and that is the whole story. The offense is strong — 124 R, 37 HR, 117 RBI. The ERA is acceptable at 3.54. This team wins 7-8 categories when it has saves and 5-6 when it doesn't. Every week without a closer is a week gifted to the opponent. The fix exists. Go get it." },
+  { name:"George's Walkers",      tip:"12 SV and 11 W through four weeks is top-tier — that's quietly one of the best bullpens by counting stats. This week's 2.62 ERA from the pitching staff was the best in the league. The offense is genuinely the only ceiling: .238 AVG and 12 SB are the two softest spots. One table-setter in the lineup unlocks this team." },
+  { name:"Raphi's Loaded Bases",  tip:"Season ERA of 2.62 is now the best in the league. That is not a stat, that is a statement. 24 SB is tied for second. The WHIP of 1.06 is excellent. The only remaining hole is saves — 5 on the season is a weekly give. One closer and Raphi becomes a genuine title threat, not just a team you don't want to face." },
+  { name:"Bad Rabbits",           tip:"249 K and the best W-SV combo in the league. Ernesto has built a complete roster that wins every category on paper and proves it weekly. The only thing to watch: ERA crept to 2.95 after being sub-2.90 — keep an eye on the rotation. Everything else? Already optimized. This team is the benchmark." },
+  { name:"Motion to Strike",      tip:"3-1 last week, 3-1 now after getting steamrolled in Week 4. The core is still strong — .261 AVG, 171 K, 7 W. The 9 SV is solid but the ERA of 3.63 and WHIP of 1.24 are drifting up. Tighten the pitching rotation and this team bounces back immediately. The Bad Rabbits matchup was a bad draw, not a bad team." },
+  { name:"Switch Hitter Brandon", tip:"23 SB, 193 K, .255 AVG — three very reliable weekly categories. 14 W is top-three in the league. The 4 SV is a consistent giveaway but if you've accepted the identity then lean into it: target HR and RBI depth to shore up the two hitting categories where you're still average and you become very hard to beat on balance." }
+];
+
+var recGrid = document.getElementById('rec-grid');
+realTeams.forEach(function(team, i) {
+  var sc = getScores(team.name);
+  var locked = [], tossup = [], losing = [];
+  allCats.forEach(function(c) {
+    var s = sc[c];
+    if (s >= 7) locked.push(c);
+    else if (s >= 4) tossup.push(c);
+    else losing.push(c);
+  });
+  var strat = null;
+  for (var j = 0; j < strategies.length; j++) {
+    if (strategies[j].name === team.name) { strat = strategies[j]; break; }
+  }
+  var card = document.createElement('div'); card.className = 'rec-card';
+  card.style.borderLeftColor = teamColors[i % teamColors.length];
+  card.innerHTML = '<div class="rec-name">' + team.name + '</div>' +
+    '<div class="rec-row"><span class="rec-label">Locked</span>' + pills(locked, 'cat-win') + '</div>' +
+    '<div class="rec-row"><span class="rec-label">Toss-up</span>' + pills(tossup, 'cat-close') + '</div>' +
+    '<div class="rec-row"><span class="rec-label">Losing</span>' + pills(losing, 'cat-lose') + '</div>' +
+    '<div class="rec-tip">' + (strat ? strat.tip : '') + '</div>';
+  recGrid.appendChild(card);
+});
+
+// Matchup radars using current team data
+var matchupGrid = document.getElementById('matchup-grid');
+var matchupColorA = "#1a6fcc";
+var matchupColorB = "#D85A30";
+
+matchups.filter(function(m) {
+  return m.a !== "[Dummy Team]" && m.b !== "[Dummy Team]";
+}).forEach(function(m, idx) {
+  var scA = getScores(m.a);
+  var scB = getScores(m.b);
+  var scoresA = allCats.map(function(c) { return parseFloat((scA[c] || 1).toFixed(2)); });
+  var scoresB = allCats.map(function(c) { return parseFloat((scB[c] || 1).toFixed(2)); });
+
+  var card = document.createElement('div'); card.className = 'matchup-card';
+  card.innerHTML =
+    '<div class="matchup-legend">' +
+      '<span><span class="leg-dot" style="background:' + matchupColorA + '"></span>' + m.a + '</span>' +
+      '<span><span class="leg-dot" style="background:' + matchupColorB + '"></span>' + m.b + '</span>' +
+    '</div>' +
+    '<canvas id="mc' + idx + '"></canvas>';
+  matchupGrid.appendChild(card);
+
+  new Chart(document.getElementById('mc' + idx), {
+    type: 'radar',
+    data: {
+      labels: allCats,
+      datasets: [
+        { label: m.a, data: scoresA, backgroundColor: 'rgba(26,111,204,0.15)', borderColor: matchupColorA, borderWidth: 2, pointBackgroundColor: matchupColorA, pointRadius: 3 },
+        { label: m.b, data: scoresB, backgroundColor: 'rgba(216,90,48,0.15)',  borderColor: matchupColorB, borderWidth: 2, pointBackgroundColor: matchupColorB, pointRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: { r: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 9 }, backdropColor: 'transparent', color: '#bbb' }, grid: { color: 'rgba(0,0,0,0.07)' }, angleLines: { color: 'rgba(0,0,0,0.07)' }, pointLabels: { color: '#444', font: { size: 11, weight: '500' } } } }
+    }
+  });
+});
+
+var roastGrid = document.getElementById('roast-grid');
+realTeams.forEach(function(team, i) {
+  var r = null;
+  for (var j = 0; j < roasts.length; j++) {
+    if (roasts[j].name === team.name) { r = roasts[j]; break; }
+  }
+  if (!r) return;
+  var card = document.createElement('div'); card.className = 'rec-card';
+  card.style.borderLeftColor = teamColors[i % teamColors.length];
+  card.innerHTML = '<div class="rec-name">' + r.name + '</div><div class="rec-tip" style="font-style:italic">' + r.text + '</div>';
+  roastGrid.appendChild(card);
+});
+</script>
+</body>
+</html>
