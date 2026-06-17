@@ -270,8 +270,29 @@
 <div class="section-header" style="margin-top:1.5rem"><h2>Week 13 matchup radars</h2></div>
 <div class="matchup-grid" id="matchup-grid"></div>
 
-<div class="section-header" style="margin-top:1.5rem"><h2>Team strategy</h2></div>
-<div class="rec-grid" id="rec-grid"></div>
+<div class="section-header" style="margin-top:1.5rem"><h2>MVP History</h2></div>
+<div style="max-width:600px;margin:0 auto 1.5rem;background:#fff;border-radius:14px;box-shadow:0 1px 8px rgba(0,0,0,0.07);overflow:hidden;">
+  <table style="width:100%;border-collapse:collapse;font-size:13px;">
+    <thead><tr style="background:#f7f7f5;">
+      <th style="padding:9px 16px;text-align:left;color:#555;font-weight:600;border-bottom:2px solid #eee;width:30%;">Week</th>
+      <th style="padding:9px 16px;text-align:left;color:#555;font-weight:600;border-bottom:2px solid #eee;">MVP</th>
+    </tr></thead>
+    <tbody>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">12</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Bad Rabbits</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">11</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Yorkshire Terrors</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">10</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Yorkshire Terrors</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">9</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Yorkshire Terrors</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">8</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Yorkshire Terrors</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">7</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Raphi's Loaded Bases</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">6</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Brooklyn Dogbabies</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">5</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Brooklyn Dogbabies</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">4</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">George's Walkers</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">3</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Bad Rabbits</td></tr>
+      <tr><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">2</td><td style="padding:8px 16px;border-bottom:1px solid #f0f0f0;color:#333;">Brooklyn Dogbabies</td></tr>
+      <tr><td style="padding:8px 16px;color:#333;">1</td><td style="padding:8px 16px;color:#333;">N/A</td></tr>
+    </tbody>
+  </table>
+</div>
 
 <div class="section-header" style="margin-top:0.5rem"><h2>Roast of the week</h2></div>
 <div class="rec-grid" id="roast-grid"></div>
@@ -536,42 +557,6 @@ realTeams.forEach(function(team, i) {
     options: { responsive: true, maintainAspectRatio: true, layout: { padding: { top: 10, bottom: 10, left: 14, right: 14 } }, plugins: { legend: { display: false } },
       scales: { r: { min: 0, max: 10, ticks: { stepSize: 2, font: { size: 8 }, backdropColor: 'transparent', color: '#bbb' }, grid: { color: 'rgba(0,0,0,0.07)' }, angleLines: { color: 'rgba(0,0,0,0.07)' }, pointLabels: { color: '#444', font: { size: 10, weight: '500' } } } } }
   });
-});
-
-var strategies = [
-  { name:"Brooklyn Dogbabies",    tip:"8-3-1 and tied for first. 60 SV leads the league. The power surge (17 HR last week) is back on track. Week 13 vs Draft Dodgers — win HR, RBI, and SV and Brooklyn stays at the top. Philip's team is rounding into playoff form." },
-  { name:"Top Tier Kyo",          tip:"75 SB leads the league by a huge margin. Week 13 vs George's Walkers — both teams are fighting for ninth place. Win SB and ERA and finish the season with some dignity. The pretzel's legacy is set regardless of the final record." },
-  { name:"Yorkshire Terrors",     tip:"708 K leads the league by a wide margin. Tied for first at 8-3-1. Week 13 vs Dummy Team — a guaranteed win. Stack every category, build the season totals, and enter the playoffs with full momentum and the best K rate in the league." },
-  { name:"Draft Dodgers",         tip:"682 K second in the league. The offense clicked last week with 31 R, 9 HR, 36 RBI. Week 13 vs Brooklyn is a tough draw but Wooyoung's team has real talent. Win K and RBI and pull off the upset against the league leader." },
-  { name:"George's Walkers",      tip:"3-8-1 and out of the playoff picture. Week 13 vs Top Tier Kyo — win AVG, ERA, and SV and avoid finishing in last place. Both teams have nothing to lose. Play loose and see what happens." },
-  { name:"Raphi's Loaded Bases",  tip:"80 SB and 48 W both lead the league. Week 13 vs Switch Hitter Brandon is a critical seeding game. Win SB, W, and ERA and Raphi locks up a strong playoff position. The trash can needs to bounce back from the Bad Rabbits loss." },
-  { name:"Bad Rabbits",           tip:"Week 12 MVP with the best offensive week of the season. 771 K leads the league. Week 13 vs Motion to Strike — keep the momentum rolling. Win R, HR, RBI, and K and Ernesto's team enters the playoffs as the hottest team in the league." },
-  { name:"Motion to Strike",      tip:"570 K and a strong season. Week 13 vs Bad Rabbits is the toughest possible matchup right now. Win ERA and WHIP to neutralize the league's hottest offense. Bennett's team needs a strong defensive week to hold playoff positioning." },
-  { name:"Switch Hitter Brandon", tip:"564 K and a strong pitching staff anchored by Misiorowski's gem last week. Week 13 vs Raphi's Loaded Bases is a critical matchup. Win K, AVG, and HR and Brandon locks up a top playoff seed heading into the postseason." }
-];
-
-var recGrid = document.getElementById('rec-grid');
-realTeams.forEach(function(team, i) {
-  var sc = getScores(team.name);
-  var locked = [], tossup = [], losing = [];
-  allCats.forEach(function(c) {
-    var s = sc[c];
-    if (s >= 7) locked.push(c);
-    else if (s >= 4) tossup.push(c);
-    else losing.push(c);
-  });
-  var strat = null;
-  for (var j = 0; j < strategies.length; j++) {
-    if (strategies[j].name === team.name) { strat = strategies[j]; break; }
-  }
-  var card = document.createElement('div'); card.className = 'rec-card';
-  card.style.borderLeftColor = teamColors[i % teamColors.length];
-  card.innerHTML = '<div class="rec-name">' + team.name + '</div>' +
-    '<div class="rec-row"><span class="rec-label">Locked</span>' + pills(locked, 'cat-win') + '</div>' +
-    '<div class="rec-row"><span class="rec-label">Toss-up</span>' + pills(tossup, 'cat-close') + '</div>' +
-    '<div class="rec-row"><span class="rec-label">Losing</span>' + pills(losing, 'cat-lose') + '</div>' +
-    '<div class="rec-tip">' + (strat ? strat.tip : '') + '</div>';
-  recGrid.appendChild(card);
 });
 
 // Matchup radars using current team data
